@@ -1,0 +1,180 @@
+<!--pages/admin/admin.wxml-->
+<view class="page">
+  <view class="hero-card">
+    <view class="hero-head">
+      <view class="hero-title-block">
+        <view class="hero-title">{{merchantDashboard.merchantName}}</view>
+        <view class="hero-subtitle">{{merchantDashboard.shopInfo.businessHours || merchantDashboard.statusMessage}}</view>
+      </view>
+      <view class="hero-badge {{merchantDashboard.shopInfo.deliveryEnabled ? 'active' : 'muted'}}">
+        {{merchantDashboard.shopInfo.deliveryEnabled ? '配送开启' : '配送暂停'}}
+      </view>
+    </view>
+
+    <view class="hero-info">
+      <text wx:if="{{merchantDashboard.shopInfo.phone}}">电话：{{merchantDashboard.shopInfo.phone}}</text>
+      <text wx:if="{{merchantDashboard.shopInfo.addressText}}">地址：{{merchantDashboard.shopInfo.addressText}}</text>
+    </view>
+
+    <view class="hero-notice" wx:if="{{merchantDashboard.shopInfo.notice}}">
+      {{merchantDashboard.shopInfo.notice}}
+    </view>
+
+    <view class="hero-sync" wx:if="{{merchantDashboard.lastSyncText}}">
+      更新于 {{merchantDashboard.lastSyncText}}
+    </view>
+    <view class="hero-sync" wx:else>
+      正在加载经营数据...
+    </view>
+
+    <view class="hero-actions">
+      <view class="hero-action-btn" bindtap="refreshDashboard">刷新看板</view>
+    </view>
+  </view>
+
+  <view class="stats-section">
+    <view class="section-title">今日看板</view>
+    <view class="stats-grid" wx:if="{{merchantDashboard.summaryCards.length > 0}}">
+      <view class="stat-card" wx:for="{{merchantDashboard.summaryCards}}" wx:key="label">
+        <view class="stat-label">{{item.label}}</view>
+        <view class="stat-value">{{item.value}}</view>
+        <view class="stat-hint">{{item.hint}}</view>
+      </view>
+    </view>
+    <view class="stats-empty" wx:else>
+      <text>经营数据加载中，稍后自动显示。</text>
+      <view class="refresh-link" bindtap="refreshDashboard">手动刷新</view>
+    </view>
+  </view>
+
+  <view class="recent-section" wx:if="{{merchantDashboard.recentOrders.length > 0}}">
+    <view class="section-title">最近订单</view>
+    <view class="recent-list">
+      <view class="recent-item" wx:for="{{merchantDashboard.recentOrders}}" wx:key="_id">
+        <view class="recent-row">
+          <view>
+            <view class="recent-no">#{{item.orderNo}}</view>
+            <view class="recent-meta">{{item.createTimeText}} · {{item.deliveryType === 'delivery' ? '外卖配送' : '订单'}}</view>
+          </view>
+          <view class="recent-status" style="color: {{item.statusColor}};">
+            {{item.orderStatus}}
+          </view>
+        </view>
+        <view class="recent-detail">
+          <view class="recent-address">
+            <text class="recent-address-name">{{item.receiverName}}</text>
+            <text class="recent-address-text">{{item.addressText}}</text>
+          </view>
+          <view class="recent-price">¥{{item.payAmountText}}</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 经营入口 -->
+  <view class="menu-section">
+    <view class="section-title">经营入口</view>
+    <van-grid column-num="3" border="{{false}}" icon-size="56rpx" custom-class="menu-grid">
+      <van-grid-item
+        icon="shop-o"
+        icon-color="#e54d42"
+        text="菜品管理"
+        bind:click="goToDish"
+      />
+      <van-grid-item
+        icon="orders-o"
+        icon-color="#e54d42"
+        text="订单管理"
+        bind:click="goToOrder"
+      />
+      <van-grid-item
+        icon="friends-o"
+        icon-color="#e54d42"
+        text="会员管理"
+        bind:click="goToUser"
+      />
+      <van-grid-item
+        icon="qr-invalid"
+        icon-color="#e54d42"
+        text="入口码管理"
+        bind:click="goToTableCode"
+      />
+      <van-grid-item
+        icon="volume-o"
+        icon-color="#e54d42"
+        text="公告管理"
+        bind:click="goToNotice"
+      />
+      <van-grid-item
+        icon="printer"
+        icon-color="#e54d42"
+        text="打印机管理"
+        bind:click="goToPrinter"
+      />
+    </van-grid>
+  </view>
+
+  <!-- 系统设置 -->
+  <view class="menu-section">
+    <view class="section-title">系统设置</view>
+    <van-grid column-num="3" border="{{false}}" icon-size="56rpx" custom-class="menu-grid">
+      <van-grid-item
+        icon="shop-collect-o"
+        icon-color="#e54d42"
+        text="店铺设置"
+        bind:click="goToShopInfo"
+      />
+      <van-grid-item
+        icon="lock"
+        icon-color="#e54d42"
+        text="修改密码"
+        bind:click="showChangePassword"
+      />
+      <van-grid-item
+        icon="credit-pay"
+        icon-color="#e54d42"
+        text="充值选项管理"
+        bind:click="goToRechargeOptions"
+      />
+    </van-grid>
+  </view>
+
+  <!-- 返回按钮 -->
+  <view class="back-btn" bindtap="goBack">
+    <text>返回</text>
+  </view>
+
+  <!-- 修改密码弹窗 -->
+  <view class="modal-mask" wx:if="{{showPasswordModal}}" catchtap="closePasswordModal">
+    <view class="modal-dialog" catchtap="stopPropagation">
+      <view class="modal-title">修改商家密码</view>
+      <view class="modal-content">
+        <input
+          class="password-input"
+          type="password"
+          placeholder="请输入原密码"
+          value="{{oldPassword}}"
+          bindinput="onOldPasswordInput"
+        />
+        <input
+          class="password-input"
+          type="password"
+          placeholder="请输入新密码（至少6位）"
+          value="{{newPassword}}"
+          bindinput="onNewPasswordInput"
+        />
+        <input
+          class="password-input"
+          type="password"
+          placeholder="请再次输入新密码"
+          value="{{confirmPassword}}"
+          bindinput="onConfirmPasswordInput"
+        />
+      </view>
+      <view class="modal-footer">
+        <view class="modal-btn cancel" bindtap="closePasswordModal">取消</view>
+        <view class="modal-btn confirm" bindtap="confirmChangePassword">确认</view>
+      </view>
+    </view>
+  </view>
+</view>

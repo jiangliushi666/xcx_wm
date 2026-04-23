@@ -1,0 +1,204 @@
+<!--pages/admin/printer/printer.wxml-->
+<view class="page">
+  <view class="page-section printer-summary surface-card" wx:if="{{printerInfo}}">
+    <view class="section-head">
+      <view class="section-copy">
+        <view class="section-title">{{printerInfo.name || '未命名打印机'}}</view>
+        <view class="section-subtitle">设备编号 {{printerInfo.sn}}</view>
+      </view>
+      <view class="status-pill {{printerStatus.onlineStatus === 1 ? 'online' : 'offline'}}">
+        {{printerStatus.onlineStatus === 1 ? '在线' : '离线'}}
+      </view>
+    </view>
+
+    <view class="info-grid">
+      <view class="info-card">
+        <view class="info-label">工作状态</view>
+        <view class="info-value">{{printerStatus.workStatusDesc || '未知'}}</view>
+      </view>
+      <view class="info-card">
+        <view class="info-label">打印浓度</view>
+        <view class="info-value">{{densityText[printerInfo.density] || '默认'}}</view>
+      </view>
+      <view class="info-card">
+        <view class="info-label">打印速度</view>
+        <view class="info-value">{{speedText[printerInfo.printSpeed] || '默认'}}</view>
+      </view>
+      <view class="info-card">
+        <view class="info-label">音量</view>
+        <view class="info-value">{{printerInfo.volume !== undefined ? printerInfo.volume : '默认'}}</view>
+      </view>
+    </view>
+
+    <view class="action-group">
+      <view class="action-row">
+        <view class="action-btn primary" bindtap="testPrint">测试打印</view>
+        <view class="action-btn secondary" bindtap="queryStatus">查询状态</view>
+      </view>
+      <view class="action-row action-row-end">
+        <view class="text-action danger" bindtap="unbindPrinter">解绑打印机</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="page-section empty-section surface-card" wx:else>
+    <view class="empty-pill">打印设备</view>
+    <view class="empty-title">未绑定打印机</view>
+    <view class="section-subtitle">绑定后可查看状态、测试打印，并统一设置浓度、速度和音量。</view>
+    <view class="bind-btn" bindtap="showBindModal">绑定打印机</view>
+  </view>
+
+  <view class="page-section settings-section surface-card" wx:if="{{printerInfo}}">
+    <view class="section-head list-head">
+      <view class="section-copy">
+        <view class="section-title">打印设置</view>
+        <view class="section-subtitle">使用统一的参数 pill 调整设备表现，当前选项会即时生效。</view>
+      </view>
+    </view>
+
+    <view class="setting-item">
+      <view class="setting-head">
+        <view class="setting-label">打印浓度</view>
+        <view class="setting-current">{{densityText[printerInfo.density] || '默认'}}</view>
+      </view>
+      <view class="setting-options">
+        <view
+          class="option-btn {{printerInfo.density === 4 ? 'active' : ''}}"
+          bindtap="setDensity"
+          data-value="4">
+          较淡
+        </view>
+        <view
+          class="option-btn {{printerInfo.density === 5 ? 'active' : ''}}"
+          bindtap="setDensity"
+          data-value="5">
+          普通
+        </view>
+        <view
+          class="option-btn {{printerInfo.density === 6 || !printerInfo.density ? 'active' : ''}}"
+          bindtap="setDensity"
+          data-value="6">
+          较浓
+        </view>
+        <view
+          class="option-btn {{printerInfo.density === 7 ? 'active' : ''}}"
+          bindtap="setDensity"
+          data-value="7">
+          浓
+        </view>
+      </view>
+    </view>
+
+    <view class="setting-item">
+      <view class="setting-head">
+        <view class="setting-label">打印速度</view>
+        <view class="setting-current">{{speedText[printerInfo.printSpeed] || '默认'}}</view>
+      </view>
+      <view class="setting-options">
+        <view
+          class="option-btn {{printerInfo.printSpeed === 1 ? 'active' : ''}}"
+          bindtap="setPrintSpeed"
+          data-value="1">
+          慢
+        </view>
+        <view
+          class="option-btn {{printerInfo.printSpeed === 2 ? 'active' : ''}}"
+          bindtap="setPrintSpeed"
+          data-value="2">
+          中
+        </view>
+        <view
+          class="option-btn {{printerInfo.printSpeed === 3 ? 'active' : ''}}"
+          bindtap="setPrintSpeed"
+          data-value="3">
+          快
+        </view>
+      </view>
+    </view>
+
+    <view class="setting-item">
+      <view class="setting-head">
+        <view class="setting-label">音量</view>
+        <view class="setting-current">{{printerInfo.volume !== undefined ? printerInfo.volume : '默认'}}</view>
+      </view>
+      <view class="setting-options">
+        <view
+          class="option-btn {{printerInfo.volume === 0 ? 'active' : ''}}"
+          bindtap="setVolume"
+          data-value="0">
+          静音
+        </view>
+        <view
+          class="option-btn {{printerInfo.volume === 1 ? 'active' : ''}}"
+          bindtap="setVolume"
+          data-value="1">
+          1
+        </view>
+        <view
+          class="option-btn {{printerInfo.volume === 2 ? 'active' : ''}}"
+          bindtap="setVolume"
+          data-value="2">
+          2
+        </view>
+        <view
+          class="option-btn {{printerInfo.volume === 3 ? 'active' : ''}}"
+          bindtap="setVolume"
+          data-value="3">
+          3
+        </view>
+        <view
+          class="option-btn {{printerInfo.volume === 4 ? 'active' : ''}}"
+          bindtap="setVolume"
+          data-value="4">
+          4
+        </view>
+        <view
+          class="option-btn {{printerInfo.volume === 5 ? 'active' : ''}}"
+          bindtap="setVolume"
+          data-value="5">
+          5
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="modal-mask" wx:if="{{showBindModal}}" catchtap="closeBindModal">
+    <view class="modal-dialog" catchtap="stopPropagation">
+      <view class="modal-title">绑定打印机</view>
+      <view class="modal-subtitle">绑定成功后可立即测试打印并继续调整设备参数。</view>
+      <view class="modal-content">
+        <view class="form-item">
+          <view class="form-label">设备编号 (SN)</view>
+          <input
+            class="form-input"
+            placeholder="请输入打印机编号"
+            value="{{bindForm.sn}}"
+            bindinput="onSnInput"
+          />
+        </view>
+        <view class="form-item">
+          <view class="form-label">绑定码 (Key)</view>
+          <input
+            class="form-input"
+            placeholder="请输入设备绑定码"
+            value="{{bindForm.key}}"
+            bindinput="onKeyInput"
+          />
+        </view>
+        <view class="form-item">
+          <view class="form-label">设备名称</view>
+          <input
+            class="form-input"
+            placeholder="请输入设备名称（可选）"
+            value="{{bindForm.name}}"
+            bindinput="onNameInput"
+          />
+        </view>
+      </view>
+      <view class="modal-footer">
+        <view class="modal-btn cancel" bindtap="closeBindModal">取消</view>
+        <view class="modal-btn confirm" bindtap="confirmBind">确认</view>
+      </view>
+    </view>
+  </view>
+</view>

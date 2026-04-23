@@ -1,0 +1,86 @@
+<!--pages/admin/tableCode/tableCode.wxml-->
+<view class="page">
+  <view class="page-section hero-section surface-card">
+    <view class="section-head">
+      <view class="section-copy">
+        <view class="section-title">入口码管理</view>
+        <view class="section-subtitle">统一维护门店入口海报，支持创建、预览与下载分发。</view>
+      </view>
+      <view class="add-btn" bindtap="showAddModal">新建入口码</view>
+    </view>
+  </view>
+
+  <view class="page-section list-section surface-card">
+    <view class="section-head list-head">
+      <view>
+        <view class="section-title">入口码列表</view>
+        <view class="section-subtitle">
+          {{tableCodeList.length > 0 ? '海报生成后可直接预览或下载使用。' : '暂无入口码，先创建一个开始。'}}
+        </view>
+      </view>
+    </view>
+
+    <view class="table-code-list" wx:if="{{tableCodeList.length > 0}}">
+      <view class="table-code-item" wx:for="{{tableCodeList}}" wx:key="_id">
+        <view class="item-head">
+          <view class="code-info">
+            <view class="code-number">入口码 {{item.tableNumber}}</view>
+            <view class="code-time">{{item.createTimeText}}</view>
+          </view>
+          <view class="code-state {{item.posterUrl ? 'ready' : 'pending'}}">
+            {{item.posterUrl ? '海报已生成' : '待生成海报'}}
+          </view>
+        </view>
+
+        <view class="primary-actions">
+          <view class="action-btn primary" bindtap="regeneratePoster" data-item="{{item}}">
+            {{item.posterUrl ? '重生成海报' : '生成海报'}}
+          </view>
+        </view>
+
+        <view class="secondary-actions">
+          <view class="secondary-pill" bindtap="previewPoster" data-item="{{item}}">预览</view>
+          <view class="secondary-pill" bindtap="downloadPoster" data-item="{{item}}">下载</view>
+          <view class="text-action danger" bindtap="deleteTableCode" data-id="{{item._id}}">删除</view>
+        </view>
+      </view>
+    </view>
+
+    <van-empty wx:else description="暂无入口码，点击上方按钮创建" />
+  </view>
+
+  <view class="modal-mask" wx:if="{{showAddModal}}" catchtap="closeAddModal">
+    <view class="modal-dialog" catchtap="stopPropagation">
+      <view class="modal-title">新建入口码</view>
+      <view class="modal-subtitle">创建后可继续生成海报并投放到桌贴或店内入口。</view>
+      <view class="modal-content">
+        <view class="form-item">
+          <view class="form-label">入口码</view>
+          <input
+            class="form-input"
+            type="number"
+            placeholder="请输入入口码"
+            value="{{newTableNumber}}"
+            bindinput="onTableNumberInput"
+          />
+        </view>
+      </view>
+      <view class="modal-footer">
+        <view class="modal-btn cancel" bindtap="closeAddModal">取消</view>
+        <view class="modal-btn confirm" bindtap="confirmAddTableCode">确认</view>
+      </view>
+    </view>
+  </view>
+
+  <painter
+    customStyle="position: absolute; left: -9999rpx;"
+    customActionStyle="{{customActionStyle}}"
+    dancePalette="{{template}}"
+    palette="{{paintPallette}}"
+    bind:imgOK="onImgOK"
+    bind:touchEnd="touchEnd"
+    action="{{action}}"
+    use2D="{{true}}"
+    widthPixels="520"
+  />
+</view>

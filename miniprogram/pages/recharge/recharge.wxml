@@ -1,0 +1,63 @@
+<!--pages/recharge/recharge.wxml-->
+<view class="page">
+  <view class="hero hero-panel">
+    <text class="hero-label">账户余额</text>
+    <view class="hero-balance">
+      <text class="balance-symbol">¥</text>
+      <text class="balance-num">{{userInfo.balance || 0}}</text>
+    </view>
+    <text class="hero-note">充值后余额可直接用于点餐消费</text>
+  </view>
+
+  <view class="recharge-section">
+    <view class="section-head">
+      <view class="section-title">选择充值套餐</view>
+      <view class="section-subtitle">充值金额实时到账，赠送金额自动累加</view>
+    </view>
+
+    <view class="recharge-list" wx:if="{{rechargeList.length > 0}}">
+      <view
+        class="recharge-item surface-card"
+        wx:for="{{rechargeList}}"
+        wx:key="_id">
+        <view class="recharge-content">
+          <view class="recharge-amount">
+            <text class="amount-symbol">¥</text>
+            <text class="amount-num">{{item.amount}}</text>
+          </view>
+
+          <view class="recharge-gift {{item.giveAmount > 0 ? '' : 'hidden'}}">
+            <text>赠送 ¥{{item.giveAmount}}</text>
+          </view>
+
+          <view class="recharge-total">
+            <text>共到账¥{{item.amount + item.giveAmount}}</text>
+          </view>
+        </view>
+
+        <view class="recharge-btn" bindtap="confirmRecharge" data-recharge="{{item}}">
+          立即充值
+        </view>
+      </view>
+    </view>
+
+    <view class="empty-state surface-card" wx:else>
+      <van-empty description="暂无充值套餐" />
+    </view>
+  </view>
+
+  <view class="tips-section surface-card">
+    <view class="section-title">充值说明</view>
+    <view class="tips-content">
+      <view class="tips-item">1. 充值金额直接到账，可用于点餐消费</view>
+      <view class="tips-item">2. 充值可赠送相应金额</view>
+      <view class="tips-item">3. 首次单笔充值满68元，额外赠送1次免单机会</view>
+      <view class="tips-item">4. 余额不可提现，请根据实际需求充值</view>
+    </view>
+  </view>
+
+  <avatar-nickname-modal
+    showAvaModal="{{showAuthModal}}"
+    bind:saved="handleUserAuth">
+  </avatar-nickname-modal>
+</view>

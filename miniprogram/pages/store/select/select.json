@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "选择门店",
+  "navigationBarBackgroundColor": "#e54d42",
+  "navigationBarTextStyle": "white",
+  "usingComponents": {
+    "van-empty": "/vant/empty/index"
+  }
+}

@@ -1,0 +1,32 @@
+<view class="page">
+  <view class="header">
+    <view class="header-title">收货地址</view>
+    <view class="header-subtitle" wx:if="{{from === 'settle'}}">请选择一个地址用于本次下单</view>
+    <view class="header-action" bindtap="addAddress">新增地址</view>
+  </view>
+
+  <view class="address-list">
+    <view
+      class="address-item {{item.isDefault ? 'default' : ''}}"
+      wx:for="{{addresses}}"
+      wx:key="_id"
+      bindtap="chooseAddress"
+      data-id="{{item._id}}">
+      <view class="address-main">
+        <view class="address-top">
+          <text class="receiver">{{item.name}}</text>
+          <text class="phone">{{item.mobile}}</text>
+          <text class="default-tag" wx:if="{{item.isDefault}}">默认</text>
+        </view>
+        <view class="address-text">{{item.fullAddress}}</view>
+      </view>
+      <view class="address-actions" catchtap="stopPropagation">
+        <view class="action-btn" catchtap="editAddress" data-id="{{item._id}}">编辑</view>
+        <view class="action-btn" wx:if="{{!item.isDefault}}" catchtap="setDefaultAddress" data-id="{{item._id}}">设默认</view>
+        <view class="action-btn danger" catchtap="deleteAddress" data-id="{{item._id}}">删除</view>
+      </view>
+    </view>
+
+    <van-empty wx:if="{{addresses.length === 0}}" description="暂无收货地址" />
+  </view>
+</view>

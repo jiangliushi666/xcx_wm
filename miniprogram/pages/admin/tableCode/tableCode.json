@@ -1,0 +1,11 @@
+{
+  "navigationBarTitleText": "入口码管理",
+  "usingComponents": {
+    "painter": "/components/painter/painter",
+    "van-empty": "/vant/empty/index"
+  }
+}
+
+
+
+

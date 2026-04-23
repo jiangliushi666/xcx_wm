@@ -1,0 +1,144 @@
+<!-- pages/settle/settle.wxml -->
+<view class="page">
+  <view class="hero hero-panel">
+    <text class="shop-name">{{shopInfo.name || '外卖点单'}}</text>
+    <text class="shop-subtitle">{{shopInfo.addressText || shopInfo.businessHours || '请选择收货地址后下单'}}</text>
+  </view>
+
+  <view class="section surface-card">
+    <view class="section-title-row">
+      <text class="section-title">当前门店</text>
+      <text class="section-subtitle">{{storeId ? '订单会提交到该门店' : '请返回选择门店'}}</text>
+    </view>
+    <view class="address-card">
+      <view class="address-main">
+        <view class="address-top">
+          <text class="address-name">{{shopInfo.name || selectedStore.name || '未选择门店'}}</text>
+        </view>
+        <view class="address-text">{{shopInfo.addressText || selectedStore.addressText || '暂无门店地址'}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="section surface-card">
+    <view class="section-title-row">
+      <text class="section-title">收货地址</text>
+      <view class="section-link" wx:if="{{addresses.length > 0}}" bindtap="goToAddressList">管理地址</view>
+    </view>
+
+    <view class="address-card" wx:if="{{selectedAddress}}">
+      <view class="address-main">
+        <view class="address-top">
+          <text class="address-name">{{selectedAddress.name}}</text>
+          <text class="address-phone">{{selectedAddress.mobile}}</text>
+          <text class="address-tag" wx:if="{{selectedAddress.isDefault}}">默认</text>
+        </view>
+        <view class="address-text">{{selectedAddress.fullAddress}}</view>
+      </view>
+      <view class="address-action" bindtap="goToAddressList">更换</view>
+    </view>
+
+    <view class="empty-address" wx:else>
+      <text class="empty-address-text">还没有收货地址</text>
+      <view class="empty-address-btn" bindtap="goToAddAddress">新增地址</view>
+    </view>
+  </view>
+
+  <view class="section surface-card">
+    <view class="section-title-row">
+      <text class="section-title">订单明细</text>
+      <view class="section-link" bindtap="editOrder">返回修改</view>
+    </view>
+
+    <view class="goods-list">
+      <view class="goods-item" wx:for="{{orderGoods}}" wx:key="dishId">
+        <image class="goods-image" src="{{item.dishImage}}" mode="aspectFill"></image>
+        <view class="goods-info">
+          <view class="goods-name">{{item.dishName}}</view>
+          <view class="goods-tags" wx:if="{{item.tags.length > 0}}">
+            <van-tag type="danger" wx:for="{{item.tags}}" wx:key="index" wx:for-item="tagVal">{{tagVal}}</van-tag>
+          </view>
+          <view class="goods-detail">
+            <text class="goods-price">¥{{item.price}}</text>
+            <text class="goods-count">×{{item.count}}</text>
+          </view>
+        </view>
+        <view class="goods-subtotal">¥{{item.subtotalText}}</view>
+      </view>
+
+      <van-empty wx:if="{{orderGoods.length === 0}}" description="购物车为空" />
+    </view>
+  </view>
+
+  <view class="section surface-card">
+    <text class="section-title">订单备注</text>
+    <textarea
+      class="remark-input"
+      placeholder="给商家留言，例如少辣、放门口..."
+      value="{{remark}}"
+      maxlength="100"
+      bindinput="onRemarkInput"
+    />
+  </view>
+
+  <view class="section surface-card">
+    <text class="section-title">支付方式</text>
+    <view class="pay-list">
+      <view
+        class="pay-item {{payMethod === 'balance' ? 'active' : ''}}"
+        data-value="balance"
+        bindtap="selectPayMethod">
+        <view class="pay-title">余额支付</view>
+        <view class="pay-desc">余额 ¥{{userBalance}}</view>
+      </view>
+      <view
+        class="pay-item {{payMethod === 'wechat' ? 'active' : ''}}"
+        data-value="wechat"
+        bindtap="selectPayMethod">
+        <view class="pay-title">微信支付</view>
+        <view class="pay-desc">支持微信收银</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="summary-card surface-card">
+    <view class="summary-head">
+      <text class="section-title">结算信息</text>
+      <text class="section-subtitle">确认金额与支付方式后提交订单</text>
+    </view>
+    <view class="summary-row">
+      <text class="summary-label">商品合计</text>
+      <text class="summary-value">¥{{totalPriceText}}</text>
+    </view>
+    <view class="summary-row">
+      <text class="summary-label">配送费</text>
+      <text class="summary-value">¥{{deliveryFeeText}}</text>
+    </view>
+    <view class="summary-row total">
+      <text class="summary-label">实付</text>
+      <text class="summary-value total">¥{{finalPriceText}}</text>
+    </view>
+    <view class="summary-inline">
+      <text class="summary-inline-label">支付方式</text>
+      <text class="summary-inline-value">{{payMethod === 'balance' ? '余额支付' : '微信支付'}}</text>
+    </view>
+  </view>
+
+  <view class="footer">
+    <view class="footer-copy">
+      <text class="footer-title">{{canSubmit ? '确认无误后提交订单' : '请先选择门店和收货地址'}}</text>
+      <text class="footer-desc">{{selectedAddress && storeId ? (payMethod === 'balance' ? '将使用账户余额完成支付' : '提交后拉起微信支付') : '补全门店和地址信息后即可继续'}}</text>
+    </view>
+    <view
+      class="submit-btn {{submitting || !canSubmit ? 'disabled' : ''}}"
+      bindtap="submitOrder">
+      <text wx:if="{{submitting}}">提交中...</text>
+      <text wx:else>提交订单</text>
+    </view>
+  </view>
+
+  <avatar-nickname-modal
+    showAvaModal="{{showAuthModal}}"
+    bind:saved="onUserInfoSaved">
+  </avatar-nickname-modal>
+</view>

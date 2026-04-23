@@ -1,0 +1,33 @@
+<view class="page">
+  <view class="page-hero hero-panel">
+    <view class="hero-copy">
+      <view class="hero-kicker">选择门店</view>
+      <view class="hero-title">从哪家店下单</view>
+      <view class="hero-subtitle">菜单、配送规则和订单都会跟随当前门店。</view>
+    </view>
+    <view class="hero-chip" bindtap="refreshStores">刷新</view>
+  </view>
+
+  <view class="store-list" wx:if="{{stores.length > 0}}">
+    <view
+      class="store-card surface-card {{selectedStoreId === item._id ? 'active' : ''}}"
+      wx:for="{{stores}}"
+      wx:key="_id"
+      bindtap="chooseStore"
+      data-id="{{item._id}}"
+    >
+      <view class="store-main">
+        <view class="store-name">{{item.name || '未命名门店'}}</view>
+        <view class="store-desc">{{item.description || item.businessHours || '暂无简介'}}</view>
+        <view class="store-address" wx:if="{{item.addressText}}">{{item.addressText}}</view>
+      </view>
+      <view class="store-tags">
+        <view class="tag" wx:if="{{item.deliveryEnabled}}">配送</view>
+        <view class="tag" wx:if="{{item.pickupEnabled}}">自取</view>
+        <view class="tag muted" wx:if="{{selectedStoreId === item._id}}">当前</view>
+      </view>
+    </view>
+  </view>
+
+  <van-empty wx:else description="暂无可选门店" />
+</view>

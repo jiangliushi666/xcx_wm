@@ -1,0 +1,75 @@
+<view class="page">
+  <view class="page-shell">
+    <view class="hero-panel page-hero">
+      <view class="page-label">ADMIN NOTICE</view>
+      <view class="page-title">公告管理</view>
+      <view class="page-copy">维护顾客首页滚动公告，统一控制是否启用和展示内容。</view>
+      <view class="hero-actions">
+        <view class="action-btn hero-ghost" bindtap="showAddModal" wx:if="{{notices.length === 0}}">新建公告</view>
+        <view class="hero-note" wx:else>当前已配置 1 条公告，可继续编辑或切换状态。</view>
+      </view>
+    </view>
+
+    <view class="surface-card page-section">
+      <view class="section-header">
+        <view>
+          <view class="section-title">公告列表</view>
+          <view class="section-subtitle">系统仅支持展示一条滚动公告，建议保持文案简洁。</view>
+        </view>
+        <view class="section-count" wx:if="{{notices.length > 0}}">{{notices.length}} / 1</view>
+      </view>
+
+      <view class="helper-banner" wx:if="{{notices.length > 0}}">
+        公告会直接出现在顾客端首页顶部，请优先放入核心通知或活动信息。
+      </view>
+
+      <view class="notice-list" wx:if="{{notices.length > 0}}">
+        <view class="notice-card" wx:for="{{notices}}" wx:key="_id">
+          <view class="notice-card-head">
+            <text class="status-pill {{item.status === 1 ? 'success' : 'neutral'}}">
+              {{item.status === 1 ? '启用中' : '已禁用'}}
+            </text>
+            <view class="card-actions">
+              <view class="action-btn secondary compact" bindtap="toggleStatus" data-notice="{{item}}">
+                {{item.status === 1 ? '禁用' : '启用'}}
+              </view>
+              <view class="action-btn primary compact" bindtap="showEditModal" data-notice="{{item}}">编辑</view>
+              <view class="action-btn danger compact" bindtap="deleteNotice" data-notice="{{item}}">删除</view>
+            </view>
+          </view>
+
+          <view class="notice-content">{{item.content}}</view>
+        </view>
+      </view>
+
+      <van-empty wx:else description="暂无公告，点击上方按钮添加" />
+    </view>
+  </view>
+
+  <view class="modal-mask" wx:if="{{showModal}}" catchtap="closeModal">
+    <view class="modal-dialog" catchtap="stopPropagation">
+      <view class="modal-head">
+        <view class="modal-title">{{editMode ? '编辑公告' : '添加公告'}}</view>
+        <view class="modal-subtitle">保持文案短而清楚，避免在滚动条中过度堆叠信息。</view>
+      </view>
+
+      <view class="modal-content">
+        <view class="form-item">
+          <view class="form-label">公告内容</view>
+          <textarea
+            class="form-textarea"
+            placeholder="请输入公告内容，如：首次充值 68 元送一次免单，活动时间请见门店公告。"
+            value="{{currentNotice.content}}"
+            bindinput="onContentInput"
+            maxlength="200"
+          />
+        </view>
+      </view>
+
+      <view class="modal-footer">
+        <view class="action-btn secondary wide" bindtap="closeModal">取消</view>
+        <view class="action-btn primary wide" bindtap="saveNotice">保存</view>
+      </view>
+    </view>
+  </view>
+</view>

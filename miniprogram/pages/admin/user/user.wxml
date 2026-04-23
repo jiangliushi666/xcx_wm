@@ -1,0 +1,196 @@
+<view class="page">
+  <view class="page-shell">
+    <view class="hero-panel page-hero">
+      <view class="hero-copy">
+        <view class="page-label">ADMIN USERS</view>
+        <view class="page-title">会员管理</view>
+        <view class="page-copy">搜索手机号或昵称，查看余额、免单次数，以及最近一次人工调整记录。</view>
+      </view>
+      <view class="hero-actions" wx:if="{{searchKeyword}}">
+        <view class="hero-btn" bindtap="clearSearch">清空搜索</view>
+      </view>
+    </view>
+
+    <view class="surface-card page-section">
+      <view class="section-header">
+        <view>
+          <view class="section-title">筛选会员</view>
+          <view class="section-subtitle">按昵称或手机号快速定位会员资料。</view>
+        </view>
+        <view class="section-count" wx:if="{{users.length > 0}}">已加载 {{users.length}} 位</view>
+      </view>
+
+      <view class="search-row">
+        <input
+          class="search-input"
+          placeholder="输入昵称或手机号"
+          value="{{searchKeyword}}"
+          bindinput="onSearchInput"
+          bindconfirm="doSearch"
+          confirm-type="search"
+        />
+        <view class="search-actions">
+          <view class="action-btn secondary" bindtap="clearSearch">重置</view>
+          <view class="action-btn primary" bindtap="doSearch">搜索</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="surface-card page-section">
+      <view class="section-header">
+        <view>
+          <view class="section-title">会员列表</view>
+          <view class="section-subtitle">统一查看余额、免单次数和最近一次调整摘要。</view>
+        </view>
+      </view>
+
+      <view class="member-list" wx:if="{{users.length > 0}}">
+        <view class="member-card" wx:for="{{users}}" wx:key="_id">
+          <view class="member-head">
+            <view class="member-identity">
+              <view class="member-avatar">
+                <image wx:if="{{item.avatarUrl}}" src="{{item.avatarUrl}}" mode="aspectFill"></image>
+                <view wx:else class="avatar-fallback">会</view>
+              </view>
+
+              <view class="member-main">
+                <view class="member-name">{{item.nickName || '微信用户'}}</view>
+                <view class="member-meta">{{item.phoneNumber || '未留手机号'}}</view>
+              </view>
+            </view>
+
+            <view class="member-pills">
+              <text class="status-pill brand">余额 ¥{{item.balance || 0}}</text>
+              <text class="status-pill warning">免单 {{item.miandanCount || 0}} 次</text>
+            </view>
+          </view>
+
+          <view class="audit-panel" wx:if="{{item.latestBalanceAdjust || item.latestMiandanAdjust}}">
+            <view class="audit-title">最近调整</view>
+            <view class="audit-line" wx:if="{{item.latestBalanceAdjust}}">
+              余额：{{item.latestBalanceAdjust.summaryText}}
+            </view>
+            <view class="audit-line" wx:if="{{item.latestMiandanAdjust}}">
+              免单：{{item.latestMiandanAdjust.summaryText}}
+            </view>
+          </view>
+
+          <view class="member-actions">
+            <view class="action-btn secondary" bindtap="showEditBalanceModal" data-user="{{item}}">调整余额</view>
+            <view class="action-btn primary" bindtap="showEditMiandanModal" data-user="{{item}}">调整免单</view>
+          </view>
+        </view>
+
+        <view class="list-footer">
+          <text wx:if="{{loadingUsers}}">加载中...</text>
+          <text wx:elif="{{userHasMore}}">上滑继续加载更多会员</text>
+          <text wx:else>已展示全部会员</text>
+        </view>
+      </view>
+
+      <van-empty wx:else description="暂无会员数据" />
+    </view>
+  </view>
+
+  <view class="modal-mask" wx:if="{{showBalanceModal}}" catchtap="closeBalanceModal">
+    <view class="modal-dialog" catchtap="stopPropagation">
+      <view class="modal-head">
+        <view class="modal-title">调整余额</view>
+        <view class="modal-subtitle">录入金额变动和备注，便于后续追踪。</view>
+      </view>
+
+      <view class="modal-content">
+        <view class="user-preview" wx:if="{{currentUser}}">
+          <view class="preview-avatar">
+            <image wx:if="{{currentUser.avatarUrl}}" src="{{currentUser.avatarUrl}}" mode="aspectFill"></image>
+            <view wx:else class="avatar-fallback preview-fallback">会</view>
+          </view>
+          <view class="preview-name">{{currentUser.nickName || '微信用户'}}</view>
+          <view class="preview-meta">{{currentUser.phoneNumber || '未留手机号'}}</view>
+          <view class="preview-pills">
+            <text class="status-pill brand">当前余额 ¥{{currentUser.balance || 0}}</text>
+            <text class="status-pill warning">免单 {{currentUser.miandanCount || 0}} 次</text>
+          </view>
+        </view>
+
+        <view class="form-item">
+          <view class="form-label">金额变动</view>
+          <input
+            class="form-input"
+            type="digit"
+            placeholder="支持正负数，例如 10 或 -5"
+            value="{{editBalanceDelta}}"
+            bindinput="onBalanceDeltaInput"
+          />
+        </view>
+
+        <view class="form-item">
+          <view class="form-label">调整备注</view>
+          <textarea
+            class="form-textarea"
+            placeholder="请输入本次调整原因"
+            value="{{editBalanceReason}}"
+            maxlength="100"
+            bindinput="onBalanceReasonInput"
+          />
+        </view>
+      </view>
+
+      <view class="modal-footer">
+        <view class="action-btn secondary wide" bindtap="closeBalanceModal">取消</view>
+        <view class="action-btn primary wide" bindtap="saveBalance">保存</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="modal-mask" wx:if="{{showMiandanModal}}" catchtap="closeMiandanModal">
+    <view class="modal-dialog" catchtap="stopPropagation">
+      <view class="modal-head">
+        <view class="modal-title">调整免单次数</view>
+        <view class="modal-subtitle">录入次数变动和备注，确保后续追踪清晰。</view>
+      </view>
+
+      <view class="modal-content">
+        <view class="user-preview" wx:if="{{currentUser}}">
+          <view class="preview-avatar">
+            <image wx:if="{{currentUser.avatarUrl}}" src="{{currentUser.avatarUrl}}" mode="aspectFill"></image>
+            <view wx:else class="avatar-fallback preview-fallback">会</view>
+          </view>
+          <view class="preview-name">{{currentUser.nickName || '微信用户'}}</view>
+          <view class="preview-meta">{{currentUser.phoneNumber || '未留手机号'}}</view>
+          <view class="preview-pills">
+            <text class="status-pill brand">当前余额 ¥{{currentUser.balance || 0}}</text>
+            <text class="status-pill warning">免单 {{currentUser.miandanCount || 0}} 次</text>
+          </view>
+        </view>
+
+        <view class="form-item">
+          <view class="form-label">次数变动</view>
+          <input
+            class="form-input"
+            type="number"
+            placeholder="支持正负整数，例如 1 或 -1"
+            value="{{editMiandanDelta}}"
+            bindinput="onMiandanDeltaInput"
+          />
+        </view>
+
+        <view class="form-item">
+          <view class="form-label">调整备注</view>
+          <textarea
+            class="form-textarea"
+            placeholder="请输入本次调整原因"
+            value="{{editMiandanReason}}"
+            maxlength="100"
+            bindinput="onMiandanReasonInput"
+          />
+        </view>
+      </view>
+
+      <view class="modal-footer">
+        <view class="action-btn secondary wide" bindtap="closeMiandanModal">取消</view>
+        <view class="action-btn primary wide" bindtap="saveMiandan">保存</view>
+      </view>
+    </view>
+  </view>
+</view>

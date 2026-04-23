@@ -1,0 +1,166 @@
+<view class="page">
+  <view class="page-hero hero-panel">
+    <view class="hero-copy">
+      <view class="hero-kicker">商家后台 / 门店设置</view>
+      <view class="hero-title">门店管理</view>
+      <view class="hero-subtitle">维护多门店基础资料，顾客端选店和结算会读取这里的配置。</view>
+    </view>
+    <view class="hero-chip" bindtap="createStore">新增门店</view>
+  </view>
+
+  <scroll-view class="store-tabs" scroll-x wx:if="{{stores.length > 0}}">
+    <view
+      class="store-tab {{currentStoreId === item._id ? 'active' : ''}}"
+      wx:for="{{stores}}"
+      wx:key="_id"
+      bindtap="selectStore"
+      data-id="{{item._id}}"
+    >
+      <view class="store-tab-name">{{item.name || '未命名门店'}}</view>
+      <view class="store-tab-meta">{{item.isDefault ? '默认门店' : (item.status === 'closed' ? '暂停营业' : '营业中')}}</view>
+    </view>
+  </scroll-view>
+
+  <view class="form-section surface-card">
+    <view class="section-head">
+      <view class="section-title">基础资料</view>
+      <view class="section-subtitle">门店名称、联系方式与营业时间。</view>
+    </view>
+
+    <view class="form-item">
+      <view class="form-label">门店名称</view>
+      <input
+        class="form-input"
+        placeholder="请输入门店名称"
+        value="{{storeForm.name}}"
+        bindinput="onNameInput"
+      />
+    </view>
+
+    <view class="form-item">
+      <view class="form-label">门店简介</view>
+      <textarea
+        class="form-textarea"
+        placeholder="请输入门店简介（可选）"
+        value="{{storeForm.description}}"
+        bindinput="onDescriptionInput"
+      />
+    </view>
+
+    <view class="form-item">
+      <view class="form-label">联系电话</view>
+      <input
+        class="form-input"
+        placeholder="门店联系电话"
+        value="{{storeForm.phone}}"
+        bindinput="onPhoneInput"
+      />
+    </view>
+
+    <view class="form-item">
+      <view class="form-label">门店地址</view>
+      <textarea
+        class="form-textarea"
+        placeholder="门店完整地址"
+        value="{{storeForm.addressText}}"
+        bindinput="onAddressInput"
+      />
+    </view>
+
+    <view class="form-item">
+      <view class="form-label">营业时间</view>
+      <input
+        class="form-input"
+        placeholder="例如 09:00-21:00"
+        value="{{storeForm.businessHours}}"
+        bindinput="onBusinessHoursInput"
+      />
+    </view>
+
+    <view class="form-item">
+      <view class="form-label">排序值</view>
+      <input
+        class="form-input"
+        type="number"
+        placeholder="数字越小越靠前"
+        value="{{storeForm.sort}}"
+        bindinput="onSortInput"
+      />
+    </view>
+  </view>
+
+  <view class="form-section surface-card">
+    <view class="section-head">
+      <view class="section-title">营业与履约</view>
+      <view class="section-subtitle">第一阶段先用于选店和配送规则；自取完整结算会在后续里程碑补齐。</view>
+    </view>
+
+    <view class="form-item">
+      <view class="form-label">门店公告</view>
+      <textarea
+        class="form-textarea"
+        placeholder="门店公告"
+        value="{{storeForm.notice}}"
+        bindinput="onNoticeInput"
+      />
+    </view>
+
+    <view class="form-item">
+      <view class="form-label">入口码海报背景图</view>
+      <textarea
+        class="form-textarea"
+        placeholder="请输入云存储 fileID 或可访问的图片 URL"
+        value="{{storeForm.posterBgUrl}}"
+        bindinput="onPosterBgInput"
+      />
+      <view class="form-hint">默认门店会继续同步到旧版店铺配置，兼容现有入口码和打印链路。</view>
+    </view>
+
+    <view class="form-item switch-item">
+      <view class="form-label">营业中</view>
+      <switch checked="{{storeForm.status !== 'closed'}}" bindchange="onStatusSwitchChange" color="#e54d42" />
+    </view>
+
+    <view class="form-item switch-item">
+      <view class="form-label">默认门店</view>
+      <switch checked="{{storeForm.isDefault}}" bindchange="onDefaultSwitchChange" color="#e54d42" />
+    </view>
+
+    <view class="form-item switch-item">
+      <view class="form-label">开启配送</view>
+      <switch checked="{{storeForm.deliveryEnabled}}" bindchange="onDeliverySwitchChange" color="#e54d42" />
+    </view>
+
+    <view class="form-item switch-item">
+      <view class="form-label">开启自取</view>
+      <switch checked="{{storeForm.pickupEnabled}}" bindchange="onPickupSwitchChange" color="#e54d42" />
+    </view>
+
+    <view class="form-item">
+      <view class="form-label">固定配送费</view>
+      <input
+        class="form-input"
+        type="number"
+        placeholder="默认配送费"
+        value="{{storeForm.deliveryFee}}"
+        bindinput="onDeliveryFeeInput"
+      />
+    </view>
+
+    <view class="form-item">
+      <view class="form-label">免配送费门槛</view>
+      <input
+        class="form-input"
+        type="number"
+        placeholder="订单满多少免配送费"
+        value="{{storeForm.freeDeliveryThreshold}}"
+        bindinput="onFreeDeliveryInput"
+      />
+    </view>
+  </view>
+
+  <view class="save-footer">
+    <view class="delete-btn" bindtap="deleteStore">删除门店</view>
+    <view class="save-btn" bindtap="saveShopInfo">保存门店</view>
+  </view>
+</view>

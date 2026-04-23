@@ -1,0 +1,79 @@
+<view class="page" wx:if="{{order}}">
+  <view class="hero">
+    <text class="order-no">订单号 {{order._id}}</text>
+    <text class="order-status" style="color: {{order.statusColor}};">{{order.statusText}}</text>
+    <text class="order-time">{{order.orderTime}}</text>
+  </view>
+
+  <view class="section" wx:if="{{order.canPay || order.canCancel}}">
+    <view class="section-title">订单操作</view>
+    <view class="action-row">
+      <view
+        class="action-btn ghost"
+        wx:if="{{order.canCancel}}"
+        bindtap="cancelOrder">
+        {{actionType === 'cancel' ? '取消中...' : '取消订单'}}
+      </view>
+      <view
+        class="action-btn primary"
+        wx:if="{{order.canPay}}"
+        bindtap="continuePay">
+        {{actionType === 'pay' ? '支付中...' : '继续支付'}}
+      </view>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-title">收货信息</view>
+    <view class="address-card">
+      <view class="receiver">{{order.receiverNameText}}</view>
+      <view class="phone">{{order.receiverMobileText}}</view>
+      <view class="address-text">{{order.addressText}}</view>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-title">商品明细</view>
+    <view class="goods-list">
+      <view class="goods-item" wx:for="{{order.goods}}" wx:key="dishId">
+        <image class="goods-image" src="{{item.dishImage}}" mode="aspectFill"></image>
+        <view class="goods-info">
+          <view class="goods-name">{{item.dishName}}</view>
+          <view class="goods-tags" wx:if="{{item.tags.length > 0}}">
+            <van-tag type="danger" wx:for="{{item.tags}}" wx:key="index" wx:for-item="tagVal">{{tagVal}}</van-tag>
+          </view>
+          <view class="goods-meta">¥{{item.price}} × {{item.count}}</view>
+        </view>
+        <view class="goods-subtotal">¥{{item.subtotalText}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-title">金额信息</view>
+    <view class="summary-row">
+      <text>商品合计</text>
+      <text>¥{{order.totalPriceText}}</text>
+    </view>
+    <view class="summary-row">
+      <text>配送费</text>
+      <text>¥{{order.deliveryFeeText}}</text>
+    </view>
+    <view class="summary-row total">
+      <text>实付金额</text>
+      <text>¥{{order.payAmountText}}</text>
+    </view>
+  </view>
+
+  <view class="section" wx:if="{{order.remark}}">
+    <view class="section-title">订单备注</view>
+    <view class="remark">{{order.remark}}</view>
+  </view>
+
+  <view class="section">
+    <view class="section-title">订单状态</view>
+    <view class="status-line">支付状态：{{order.pay_status ? '已支付' : '未支付'}}</view>
+    <view class="status-line">配送方式：{{order.deliveryType === 'delivery' ? '配送' : order.deliveryType}}</view>
+    <view class="status-line">支付方式：{{order.payWithBalance ? '余额支付' : '微信支付'}}</view>
+  </view>
+</view>

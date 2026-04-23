@@ -1,0 +1,130 @@
+<view class="page">
+  <view class="profile-hero hero-panel">
+    <view class="profile-main">
+      <view class="profile-avatar">
+        <image src="{{userInfo && userInfo.avatarUrl ? userInfo.avatarUrl : '/images/tabBar/me.png'}}" mode="aspectFill"></image>
+      </view>
+      <view class="profile-copy">
+        <view class="profile-name">{{userInfo && userInfo.nickName ? userInfo.nickName : '餐饮会员'}}</view>
+        <view class="profile-phone" wx:if="{{userInfo && userInfo.phoneNumber}}">
+          {{userInfo.phoneNumber}}
+        </view>
+        <view class="profile-phone muted" wx:else>
+          请先完善个人信息
+        </view>
+        <view class="profile-auth" wx:if="{{!userInfo || !userInfo.phoneNumber}}" bindtap="showAuthModal">
+          完善个人信息
+        </view>
+      </view>
+    </view>
+
+    <view class="profile-stats">
+      <view class="profile-stat">
+        <text class="stat-label">账户余额</text>
+        <text class="stat-value">¥{{userInfo.balance || 0}}</text>
+      </view>
+      <view class="profile-stat">
+        <text class="stat-label">免单次数</text>
+        <text class="stat-value">{{miandanCount}}次</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="quick-section surface-card">
+    <view class="section-head">
+      <view>
+        <text class="section-title">顾客服务</text>
+        <text class="section-subtitle">常用入口集中在这里</text>
+      </view>
+    </view>
+
+    <view class="quick-grid">
+      <view class="quick-action primary" bindtap="goToRecharge">
+        <text class="quick-icon">充值</text>
+        <text class="quick-text">查看套餐与余额</text>
+      </view>
+      <view class="quick-action" bindtap="goToAddressList">
+        <text class="quick-icon">地址</text>
+        <text class="quick-text">管理收货地址</text>
+      </view>
+      <view class="quick-action" bindtap="goToOrderList">
+        <text class="quick-icon">订单</text>
+        <text class="quick-text">查看历史订单</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="merchant-section surface-card">
+    <view class="section-head merchant-head">
+      <view>
+        <text class="section-title">{{merchantDashboard.merchantName}}</text>
+        <text class="section-subtitle">{{merchantDashboard.statusMessage}}</text>
+      </view>
+      <view class="merchant-badge {{merchantDashboard.authorized ? 'success' : 'neutral'}}">
+        {{merchantDashboard.authorized ? '已登录' : '未登录'}}
+      </view>
+    </view>
+
+    <view class="merchant-summary" wx:if="{{merchantDashboard.authorized && merchantDashboard.summaryCards.length > 0}}">
+      <view class="merchant-stat" wx:for="{{merchantDashboard.summaryCards}}" wx:key="label">
+        <view class="merchant-stat-value">{{item.value}}</view>
+        <view class="merchant-stat-label">{{item.label}}</view>
+        <view class="merchant-stat-hint">{{item.hint}}</view>
+      </view>
+    </view>
+
+    <view class="merchant-summary empty" wx:else>
+      <view class="merchant-empty-text">
+        {{merchantDashboard.isFirstTime ? '首次使用请先完成商家密码设置' : '登录后即可查看今日订单和营收'}}
+      </view>
+    </view>
+
+    <view class="merchant-actions">
+      <view class="merchant-action primary" bindtap="goToMerchantCenter">
+        {{merchantDashboard.authorized ? '进入商家中心' : (merchantDashboard.isFirstTime ? '创建商家密码' : '商家登录')}}
+      </view>
+      <view class="merchant-action" wx:if="{{merchantDashboard.authorized}}" bindtap="loadMerchantDashboard">
+        刷新看板
+      </view>
+    </view>
+  </view>
+
+  <view class="version-info">
+    <text class="version-text">版本号：{{version}}</text>
+  </view>
+
+  <avatar-nickname-modal
+    showAvaModal="{{showAuthModal}}"
+    bind:saved="onUserInfoSaved">
+  </avatar-nickname-modal>
+
+  <view class="modal-mask" wx:if="{{showPasswordModal}}" catchtap="noop">
+    <view class="modal-dialog" catchtap="stopPropagation">
+      <view class="modal-title">{{isFirstTime ? '设置商家密码' : '商家登录'}}</view>
+      <view class="modal-content">
+        <input
+          class="password-input"
+          type="password"
+          placeholder="{{isFirstTime ? '请设置商家密码（至少6位）' : '请输入商家密码'}}"
+          value="{{adminPassword}}"
+          bindinput="onPasswordInput"
+        />
+        <input
+          wx:if="{{isFirstTime}}"
+          class="password-input"
+          type="text"
+          placeholder="请输入初始化口令"
+          value="{{merchantSetupCode}}"
+          bindinput="onSetupCodeInput"
+        />
+        <view class="password-hint" wx:if="{{isFirstTime}}">
+          {{merchantBootstrapConfigured ? '首次使用，请输入初始化口令后再设置商家密码' : '首次开通请联系管理员获取初始化口令'}}
+        </view>
+      </view>
+      <view class="modal-footer">
+        <view class="modal-btn cancel" bindtap="closePasswordModal">取消</view>
+        <view class="modal-btn confirm" bindtap="verifyPassword">{{isFirstTime ? '设置' : '登录'}}</view>
+      </view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,110 @@
+<view class="page">
+  <view class="tabs">
+    <view
+      class="tab-item {{currentTab === index ? 'active' : ''}}"
+      wx:for="{{tabs}}"
+      wx:key="index"
+      bindtap="switchTab"
+      data-index="{{index}}">
+      <text class="tab-text">{{item}}</text>
+      <view class="tab-line" wx:if="{{currentTab === index}}"></view>
+    </view>
+  </view>
+
+  <view class="order-list">
+    <view
+      class="order-item"
+      wx:for="{{orderList}}"
+      wx:key="_id"
+      bindtap="viewOrderDetail"
+      data-id="{{item._id}}">
+      <view class="order-header">
+        <view class="order-meta">
+          <text class="order-type">
+            <text wx:if="{{item.type === 'recharge'}}">充值订单</text>
+            <text wx:else>外卖订单</text>
+          </text>
+          <text class="order-id">{{item._id}}</text>
+        </view>
+        <view class="order-status" style="color: {{item.statusColor}};">{{item.statusText}}</view>
+      </view>
+
+      <view class="order-content" wx:if="{{item.type === 'recharge'}}">
+        <view class="recharge-info">
+          <view class="recharge-row">
+            <text>充值金额</text>
+            <text>¥{{item.amount}}</text>
+          </view>
+          <view class="recharge-row">
+            <text>赠送金额</text>
+            <text>¥{{item.giveAmount}}</text>
+          </view>
+          <view class="recharge-row total">
+            <text>到账金额</text>
+            <text>¥{{item.totalGet}}</text>
+          </view>
+        </view>
+        <view class="recharge-meta">
+          <text class="recharge-meta-label">下单时间</text>
+          <text class="recharge-meta-value">{{item.orderTimeText}}</text>
+        </view>
+      </view>
+
+      <view class="order-content" wx:if="{{item.type === 'order'}}">
+        <view class="goods-list">
+          <view class="goods-item" wx:for="{{item.goods}}" wx:for-item="goods" wx:key="dishId">
+            <image class="goods-image" src="{{goods.dishImage}}" mode="aspectFill"></image>
+            <view class="goods-info">
+              <view class="goods-name">{{goods.dishName}}</view>
+              <view class="goods-tags" wx:if="{{goods.tags.length > 0}}">
+                <van-tag type="danger" wx:for="{{goods.tags}}" wx:key="index" wx:for-item="tagVal">{{tagVal}}</van-tag>
+              </view>
+              <view class="goods-detail">
+                <text class="goods-price">¥{{goods.price}}</text>
+                <text class="goods-count">×{{goods.count}}</text>
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <view class="address-card" wx:if="{{item.addressText}}">
+          <text class="address-label">配送地址</text>
+          <text class="address-text">{{item.addressText}}</text>
+        </view>
+      </view>
+
+      <view class="order-footer" wx:if="{{item.type === 'order'}}">
+        <view class="order-time">{{item.orderTimeText}}</view>
+        <view class="order-summary">
+          <view class="summary-line">
+            <text class="summary-label">配送费</text>
+            <text class="summary-value">¥{{item.deliveryFeeText}}</text>
+          </view>
+          <view class="summary-line total">
+            <text class="summary-label">实付</text>
+            <text class="summary-value total">¥{{item.payAmountText}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="order-actions" wx:if="{{item.canPay || item.canCancel}}">
+        <view
+          class="order-action ghost"
+          wx:if="{{item.canCancel}}"
+          catchtap="cancelOrder"
+          data-id="{{item._id}}">
+          {{actionOrderId === item._id && actionType === 'cancel' ? '取消中...' : '取消订单'}}
+        </view>
+        <view
+          class="order-action primary"
+          wx:if="{{item.canPay}}"
+          catchtap="continuePay"
+          data-id="{{item._id}}">
+          {{actionOrderId === item._id && actionType === 'pay' ? '支付中...' : '继续支付'}}
+        </view>
+      </view>
+    </view>
+
+    <van-empty wx:if="{{orderList.length === 0}}" description="暂无订单" />
+  </view>
+</view>

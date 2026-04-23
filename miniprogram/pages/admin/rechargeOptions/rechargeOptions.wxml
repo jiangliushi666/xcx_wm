@@ -1,0 +1,123 @@
+<view class="page">
+  <view class="page-shell">
+    <view class="hero-panel page-hero">
+      <view class="page-label">ADMIN RECHARGE</view>
+      <view class="page-title">充值选项管理</view>
+      <view class="page-copy">统一维护充值面额、赠送金额、推荐状态和启用状态。</view>
+      <view class="hero-actions">
+        <view class="action-btn hero-ghost" bindtap="showAddModal">添加选项</view>
+      </view>
+    </view>
+
+    <view class="surface-card page-section">
+      <view class="section-header">
+        <view>
+          <view class="section-title">选项列表</view>
+          <view class="section-subtitle">建议优先维护常用面额，并只保留必要的推荐项。</view>
+        </view>
+        <view class="section-count" wx:if="{{options.length > 0}}">{{options.length}} 项</view>
+      </view>
+
+      <view class="option-list" wx:if="{{options.length > 0}}">
+        <view class="option-card" wx:for="{{options}}" wx:key="_id">
+          <view class="option-card-head">
+            <view class="option-summary">
+              <view class="option-amount-row">
+                <text class="amount-value">¥{{item.amount}}</text>
+                <text class="gift-value" wx:if="{{item.giveAmount > 0}}">赠 ¥{{item.giveAmount}}</text>
+              </view>
+              <view class="option-total">到账 ¥{{item.amount + item.giveAmount}}</view>
+              <view class="option-desc" wx:if="{{item.description}}">{{item.description}}</view>
+            </view>
+
+            <view class="option-pills">
+              <text class="status-pill brand" wx:if="{{item.isRecommend}}">推荐</text>
+              <text class="status-pill {{item.status === 1 ? 'success' : 'neutral'}}">
+                {{item.status === 1 ? '已启用' : '已禁用'}}
+              </text>
+            </view>
+          </view>
+
+          <view class="card-actions">
+            <view class="action-btn secondary" bindtap="showEditModal" data-option="{{item}}">编辑</view>
+            <view class="action-btn danger" bindtap="deleteOption" data-option="{{item}}">删除</view>
+          </view>
+        </view>
+
+        <view class="list-footer">
+          <text wx:if="{{loadingOptions}}">加载中...</text>
+          <text wx:elif="{{optionsHasMore}}">上滑继续加载更多选项</text>
+          <text wx:else>已展示全部充值选项</text>
+        </view>
+      </view>
+
+      <van-empty wx:else description="暂无充值选项" />
+    </view>
+  </view>
+
+  <view class="modal-mask" wx:if="{{showModal}}" catchtap="closeModal">
+    <view class="modal-dialog" catchtap="stopPropagation">
+      <view class="modal-head">
+        <view class="modal-title">{{editMode ? '编辑充值选项' : '添加充值选项'}}</view>
+        <view class="modal-subtitle">金额、赠送和推荐状态会同步影响顾客端充值页的展示顺序。</view>
+      </view>
+
+      <view class="modal-content">
+        <view class="form-item">
+          <view class="form-label">充值金额（元）</view>
+          <input
+            class="form-input"
+            type="digit"
+            placeholder="请输入充值金额"
+            value="{{currentOption.amount}}"
+            bindinput="onAmountInput"
+          />
+        </view>
+
+        <view class="form-item">
+          <view class="form-label">赠送金额（元）</view>
+          <input
+            class="form-input"
+            type="digit"
+            placeholder="请输入赠送金额，可为 0"
+            value="{{currentOption.giveAmount}}"
+            bindinput="onGiveAmountInput"
+          />
+        </view>
+
+        <view class="form-item">
+          <view class="form-label">描述（可选）</view>
+          <input
+            class="form-input"
+            placeholder="如：超值优惠"
+            value="{{currentOption.description}}"
+            bindinput="onDescriptionInput"
+          />
+        </view>
+
+        <view class="switch-card">
+          <view class="switch-row">
+            <view>
+              <view class="switch-title">设为推荐</view>
+              <view class="switch-copy">推荐项会在顾客端更醒目展示。</view>
+            </view>
+            <switch checked="{{currentOption.isRecommend}}" bindchange="toggleRecommend" color="#e54d42" />
+          </view>
+
+          <view class="switch-row">
+            <view>
+              <view class="switch-title">启用状态</view>
+              <view class="switch-copy">关闭后顾客端不会展示该充值面额。</view>
+            </view>
+            <switch checked="{{currentOption.status === 1}}" bindchange="toggleStatus" color="#e54d42" />
+          </view>
+        </view>
+      </view>
+
+      <view class="modal-footer">
+        <view class="action-btn secondary wide" bindtap="closeModal">取消</view>
+        <view class="action-btn primary wide" bindtap="saveOption">保存</view>
+      </view>
+    </view>
+  </view>
+</view>
